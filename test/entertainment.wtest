@@ -1,0 +1,119 @@
+﻿import src.abonos.*
+import src.asistentes.*
+import src.bandas.*
+import src.productora.*
+
+test "Una banda de rock calcula su presupuesto y popularidad" {
+  const banda = new BandaRock(
+    nombre = "Rock",
+    cantidadSolos = 5
+  )
+
+  assert.equals(500, banda.popularidad())
+  assert.equals(1010000, banda.presupuesto())
+}
+
+test "Una banda de trap sin hielo tiene canon cero" {
+  const banda = new BandaTrap(
+    nombre = "Facil B",
+    tieneHielo = false
+  )
+
+  assert.equals(0, banda.popularidad())
+  assert.equals(0, banda.canon())
+  assert.equals(0, banda.presupuesto())
+}
+
+test "Una banda indie calcula su gasto extra" {
+  const banda = new BandaIndie(
+    nombre = "Indie",
+    instrumentos = ["guitarra", "bajo"]
+  )
+
+  assert.equals(1000, banda.gastoExtra())
+  assert.equals(1001000, banda.presupuesto())
+}
+
+test "El abono fan no aplica descuento" {
+  const abono = new AbonoFan()
+
+  assert.equals(1210, abono.aplicarDescuento(1210))
+}
+
+test "El abono vip aumenta su descuento al bonificarse" {
+  const abono = new AbonoVip(
+    porcentajeDescuento = 15
+  )
+
+  assert.equals(85, abono.aplicarDescuento(100))
+
+  abono.bonificar()
+
+  assert.equals(84, abono.aplicarDescuento(100))
+}
+
+test "Una compra descuenta el dinero y registra la entrada" {
+  productora.reiniciar()
+
+  const banda = new BandaRock(
+    nombre = "Rock",
+    cantidadSolos = 5
+  )
+
+  const asistente = new Asistente(
+    abono = new AbonoFan(),
+    dinero = 2000
+  )
+
+  asistente.comprarEntrada(banda, 2026)
+
+  assert.equals(790, asistente.dineroDisponible())
+  assert.equals(1, asistente.historial().size())
+  assert.equals(1, productora.cantidadEntradasVendidas())
+}
+
+test "El asistente puede consultar las entradas del año anterior" {
+  productora.reiniciar()
+
+  const banda = new BandaRock(
+    nombre = "Rock",
+    cantidadSolos = 5
+  )
+
+  const asistente = new Asistente(
+    abono = new AbonoFan(),
+    dinero = 5000
+  )
+
+  asistente.comprarEntrada(banda, 2025)
+  asistente.comprarEntrada(banda, 2026)
+
+  assert.equals(1, asistente.entradasDelAnioAnterior().size())
+}
+
+test "La productora calcula la ganancia total" {
+  productora.reiniciar()
+
+  const banda = new BandaRock(
+    nombre = "Rock",
+    cantidadSolos = 5
+  )
+
+  productora.registrarBanda(banda)
+
+  const asistente = new Asistente(
+    abono = new AbonoFan(),
+    dinero = 2000
+  )
+
+  asistente.comprarEntrada(banda, 2026)
+
+  assert.equals(1, productora.cantidadEntradasVendidas())
+  assert.equals(-1008790, productora.gananciaTotal())
+
+
+}
+
+
+
+
